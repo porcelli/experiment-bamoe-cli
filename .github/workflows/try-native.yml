@@ -1,4 +1,4 @@
-name: try-native
+name: native-build
 
 on:
   push:
@@ -58,4 +58,3 @@ jobs:
           name: artifacts
           path: |
             target/*.zip
-            target/*.tar.gz

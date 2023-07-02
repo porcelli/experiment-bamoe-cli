@@ -15,6 +15,9 @@
  */
 package com.ibm.bamoe.cli;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
@@ -22,49 +25,64 @@ import java.util.concurrent.Callable;
 
 import io.quarkus.picocli.runtime.annotations.TopCommand;
 import picocli.CommandLine;
+import picocli.CommandLine.ParameterException;
+import picocli.CommandLine.Spec;
+import picocli.CommandLine.Model.CommandSpec;
 
 @TopCommand
-@CommandLine.Command(mixinStandardHelpOptions = true, subcommands = {CreateProjectCommand.class, AddToProjectCommand.class})
+@CommandLine.Command(mixinStandardHelpOptions = true, subcommands = { CreateProjectCommand.class,
+        AddToProjectCommand.class }, versionProvider = VersionProvider.class)
 public class ProjectCommand {
 }
 
 enum Runtime {
-    Quarkus//, SpringBoot, RHBQ
+    Quarkus// , SpringBoot, RHBQ
 }
 
-@CommandLine.Command(name = "create-project", aliases = {"-c", "--create"})
+@CommandLine.Command(name = "create-project", aliases = { "--create" })
 class CreateProjectCommand implements Callable<Integer> {
 
-    @CommandLine.Option(names = {"-p", "--path"}, description = "Path to the folder where project will be created.")
-    File file;
+    @CommandLine.Option(names = { "-p",
+            "--path" }, description = "Path to the folder where project will be created.", required = true)
+    File path;
 
-    @CommandLine.Option(names = {"-c", "--component"}, description = "BAMOE Component (PAM or DM)", defaultValue = "PAM")
+    @CommandLine.Option(names = { "-c",
+            "--component" }, description = "BAMOE Component (PAM or DM)", defaultValue = "PAM")
     ComponentType componentType;
 
-    @CommandLine.Option(names = {"--groupId"}, description = "Group ID of the project", required = true)
+    @CommandLine.Option(names = { "-g", "--groupId" }, description = "Group ID of the project", required = true)
     String groupId;
 
-    @CommandLine.Option(names = {"--artifactId"}, description = "Artifact ID of the project", required = true)
+    @CommandLine.Option(names = { "-a", "--artifactId" }, description = "Artifact ID of the project", required = true)
     String artifactId;
 
-    @CommandLine.Option(names = {"--version"}, description = "Project Version", defaultValue = "1.0.0-SNAPSHOT")
+    @CommandLine.Option(names = { "-v", "--version" }, description = "Project Version", defaultValue = "1.0.0-SNAPSHOT")
     String version;
 
-    @CommandLine.Option(names = {"-f", "--features"}, description = "Features (BPMN, DMN, DRL) for the project", split = ",", defaultValue = "DRL")
+    @CommandLine.Option(names = { "-f",
+            "--features" }, description = "Features (BPMN, DMN, DRL) for the project", split = ",", defaultValue = "DRL")
     List<Features> features;
 
-    @CommandLine.Option(names = {"--runtime"}, description = "Target Runtime", defaultValue = "Quarkus")
+    @CommandLine.Option(names = { "-r", "--runtime" }, description = "Target Runtime", defaultValue = "Quarkus")
     Runtime runtime;
+
+    @Spec
+    CommandSpec spec;
 
     @Override
     public Integer call() throws Exception {
 
         if (!runtime.equals(Runtime.Quarkus)) {
-            throw new RuntimeException();
+            throw new ParameterException(spec.commandLine(), "Quarkus is the only supported runtime.");
+        }
+
+        if (isNull(path) || !path.exists() || !path.isDirectory()) {
+            throw new ParameterException(spec.commandLine(),
+                    "Path parameter invalid. Path must exists and be a directory.");
         }
 
         CreateQuarkusProject createProject = new CreateQuarkusProject();
-        Path pomPath = createProject.run(file, groupId, artifactId, version, features);
+        Path pomPath = createProject.run(path, groupId, artifactId, version, features);
 
         AddToQuarkusProject addToQuarkusProject = new AddToQuarkusProject();
         addToQuarkusProject.run(pomPath.toFile(), componentType, features);
@@ -73,30 +91,51 @@ class CreateProjectCommand implements Callable<Integer> {
     }
 }
 
-@CommandLine.Command(name = "add-to-project", aliases = {"-a", "--add"})
+@CommandLine.Command(name = "add-to-project", aliases = { "--add" })
 class AddToProjectCommand implements Callable<Integer> {
 
-    @CommandLine.Option(names = {"-p", "--path"}, description = "Path to the project folder or pom.xml file.")
-    File file;
+    @CommandLine.Option(names = { "-p",
+            "--path" }, description = "Path to the project folder or pom.xml file.", required = true)
+    File path;
 
-    @CommandLine.Option(names = {"-c", "--component"}, description = "BAMOE Component (PAM or DM)", defaultValue = "PAM")
+    @CommandLine.Option(names = { "-c",
+            "--component" }, description = "BAMOE Component (PAM or DM)", defaultValue = "PAM")
     ComponentType componentType;
 
-    @CommandLine.Option(names = {"-f", "--features"}, description = "Features (BPMN, DMN, DRL) for the project", split = ",", defaultValue = "DRL")
+    @CommandLine.Option(names = { "-f",
+            "--features" }, description = "Features (BPMN, DMN, DRL) for the project", split = ",", defaultValue = "DRL")
     List<Features> features;
 
-    @CommandLine.Option(names = {"--runtime"}, description = "Target Runtime", defaultValue = "Quarkus")
+    @CommandLine.Option(names = { "-r", "--runtime" }, description = "Target Runtime", defaultValue = "Quarkus")
     Runtime runtime;
+
+    @Spec
+    CommandSpec spec;
 
     @Override
     public Integer call() throws Exception {
 
         if (!runtime.equals(Runtime.Quarkus)) {
-            throw new RuntimeException();
+            throw new ParameterException(spec.commandLine(), "Quarkus is the only supported runtime.");
+        }
+
+        if (isNull(path) || !path.exists()) {
+            throw new ParameterException(spec.commandLine(),
+                    "Path parameter invalid. Path must exists, it can point to project directory or to project pom.");
+        }
+
+        if (path.isDirectory() && new File(path, "pom.xml").exists()) {
+            throw new ParameterException(spec.commandLine(),
+                    "Path parameter invalid. Path is not a valid project directory, no pom.xml found.");
+        }
+
+        if (!path.getName().toLowerCase().equals("pom.xml")) {
+            throw new ParameterException(spec.commandLine(),
+                    "Path parameter invalid. Path is not a valid project directory nor a pom.xml file.");
         }
 
         AddToQuarkusProject addToQuarkusProject = new AddToQuarkusProject();
-        addToQuarkusProject.run(file, componentType, features);
+        addToQuarkusProject.run(path, componentType, features);
         return 0;
     }
 }
