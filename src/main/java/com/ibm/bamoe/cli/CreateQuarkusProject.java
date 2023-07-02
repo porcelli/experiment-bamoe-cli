@@ -55,7 +55,7 @@ public class CreateQuarkusProject {
         new File(projectDir + "/" + artifactId + "/src/test/resources").mkdirs();
         Path pomPath = Paths.get(projectDir + "/" + artifactId + "/pom.xml");
 
-        try (InputStream inputStream = getClass().getResourceAsStream("/META-INF/pom-template.xml");
+        try (InputStream inputStream = getClass().getResourceAsStream("/pom-template.xml");
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
 
             StringBuilder content = new StringBuilder();
