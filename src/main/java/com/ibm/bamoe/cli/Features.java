@@ -44,7 +44,7 @@ public enum Features {
            new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-resteasy"); }},
            new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-resteasy-jackson"); }},
            new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-arc"); }},
-           new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-smallrye-openapi"); }})
+           new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-smallrye-openapi"); }});
     // CLASSIC_DRL(of(new Dependency() {{ setGroupId("org.kie.kogito"); setArtifactId("kogito-quarkus-rules");}},
     //                new Dependency() {{ setGroupId("org.kie.kogito"); setArtifactId("kogito-drools");}}),
     //                new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-resteasy"); }},
