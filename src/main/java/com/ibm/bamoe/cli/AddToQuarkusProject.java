@@ -15,14 +15,28 @@
  */
 package com.ibm.bamoe.cli;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.stream.Stream;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
@@ -34,24 +48,28 @@ import picocli.CommandLine.Help.Ansi;
 
 public class AddToQuarkusProject {
 
-    private static final Dependency BAMOE_BOM = new Dependency(){{
-        setGroupId("${kogito.bom.group-id}");
-        setArtifactId("${kogito.bom.artifact-id}");
-        setVersion("${kogito.bom.version}");
-        setType("pom");
-        setScope("import");
-    }};
+    private static final Dependency BAMOE_BOM = new Dependency() {
+        {
+            setGroupId("${kogito.bom.group-id}");
+            setArtifactId("${kogito.bom.artifact-id}");
+            setVersion("${kogito.bom.version}");
+            setType("pom");
+            setScope("import");
+        }
+    };
 
-    private static final Properties BAMOE_PROPERTIES = new Properties(){{
-        setProperty("kogito.bom.group-id", "com.ibm.bamoe");
-        setProperty("kogito.bom.artifact-id", "bamoe-bom");
-        setProperty("kogito.bom.version", "9.0.0.Final");
-    }};
+    private static final Properties BAMOE_PROPERTIES = new Properties() {
+        {
+            setProperty("kogito.bom.group-id", "com.ibm.bamoe");
+            setProperty("kogito.bom.artifact-id", "bamoe-bom");
+            setProperty("kogito.bom.version", "9.0.0.Final");
+        }
+    };
 
-    public void run(File inputPath, ComponentType componentType, List<Features> features) {
+    public void run(File inputPath, ComponentType componentType, Set<Features> features, CodeExamples codeExamples) {
         File pomFile;
 
-        if (!Files.exists(inputPath.toPath())){
+        if (!Files.exists(inputPath.toPath())) {
             System.out.println(Ansi.AUTO.string("@|bold,red POM File or project folder doesn't exists.|@"));
             return;
         }
@@ -62,12 +80,10 @@ public class AddToQuarkusProject {
             pomFile = inputPath;
         }
 
-        if (!Files.exists(pomFile.toPath())){
+        if (!Files.exists(pomFile.toPath())) {
             System.out.println(Ansi.AUTO.string("@|bold,red POM File doesn't exists.|@"));
             return;
         }
-
-        System.out.println(Ansi.AUTO.string("@|bold,yellow Make sure this is a Quarkus 2 based project.|@"));
 
         MavenXpp3Reader reader = new MavenXpp3Reader();
         Model model;
@@ -93,8 +109,8 @@ public class AddToQuarkusProject {
             final Set<Dependency> hashSet = new HashSet<>();
             hashSet.add(componentType.getDepedency());
             for (Features feature : features) {
-                hashSet.addAll( feature.getDepedencies());
-                hashSet.addAll( feature.getQuarkusDepedencies());
+                hashSet.addAll(feature.getDepedencies());
+                hashSet.addAll(feature.getQuarkusDepedencies());
             }
 
             for (Dependency dependency : hashSet) {
@@ -107,9 +123,30 @@ public class AddToQuarkusProject {
             MavenXpp3Writer writer = new MavenXpp3Writer();
             writer.write(new FileWriter(pomFile), model);
 
-        System.out.println(Ansi.AUTO.string("@|bold,green POM File changed successuflly.|@"));
+            if (codeExamples.equals(CodeExamples.INCLUDE_EXAMPLES) && features.size() == 3) {
+                writeFiles(pomFile.getParent(), FilesToWriteQuarkus.ALL.getFiles());
+            } else {
+                if (codeExamples.equals(CodeExamples.INCLUDE_EXAMPLES) && features.contains(Features.DRL)) {
+                    writeFiles(pomFile.getParent(), FilesToWriteQuarkus.DRL.getFiles());
+                }
+                if (codeExamples.equals(CodeExamples.INCLUDE_EXAMPLES) && features.contains(Features.DMN)) {
+                    writeFiles(pomFile.getParent(), FilesToWriteQuarkus.DMN.getFiles());
+                }
+            }
         } catch (Exception ex) {
             System.out.println(Ansi.AUTO.string("@|bold,red An error happened during POM file change.|@"));
         }
     }
+
+    private void writeFiles(String parentFolder, List<String> files) {
+        for (String file : files) {
+            try (InputStream inputStream = getClass().getResourceAsStream(file);) {
+                Path targetFile = Paths.get(parentFolder).resolve(file.substring(13));
+                targetFile.getParent().toFile().mkdirs();
+                Files.copy(inputStream, targetFile, StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+            }
+        }
+    }
+
 }

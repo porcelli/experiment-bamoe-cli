@@ -16,17 +16,17 @@
 package com.ibm.bamoe.cli;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 import java.io.File;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import io.quarkus.picocli.runtime.annotations.TopCommand;
 import picocli.CommandLine;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Spec;
+import picocli.CommandLine.Help.Ansi;
 import picocli.CommandLine.Model.CommandSpec;
 
 @TopCommand
@@ -61,10 +61,13 @@ class CreateProjectCommand implements Callable<Integer> {
 
     @CommandLine.Option(names = { "-f",
             "--features" }, description = "Features (BPMN, DMN, DRL) for the project", split = ",", defaultValue = "DRL")
-    List<Features> features;
+    Set<Features> features;
 
     @CommandLine.Option(names = { "-r", "--runtime" }, description = "Target Runtime", defaultValue = "Quarkus")
     Runtime runtime;
+
+    @CommandLine.Option(names = { "-e", "--examples" }, description = "Include Code Examples?", defaultValue = "false")
+    boolean includeExamples;
 
     @Spec
     CommandSpec spec;
@@ -85,7 +88,9 @@ class CreateProjectCommand implements Callable<Integer> {
         Path pomPath = createProject.run(path, groupId, artifactId, version, features);
 
         AddToQuarkusProject addToQuarkusProject = new AddToQuarkusProject();
-        addToQuarkusProject.run(pomPath.toFile(), componentType, features);
+        addToQuarkusProject.run(pomPath.toFile(), componentType, features, includeExamples ? CodeExamples.INCLUDE_EXAMPLES : CodeExamples.NO_EXAMPLES);
+
+        System.out.println(Ansi.AUTO.string("@|bold,green BAMOE 9.x Quarkus Project created successuflly.|@"));
 
         return 0;
     }
@@ -104,10 +109,13 @@ class AddToProjectCommand implements Callable<Integer> {
 
     @CommandLine.Option(names = { "-f",
             "--features" }, description = "Features (BPMN, DMN, DRL) for the project", split = ",", defaultValue = "DRL")
-    List<Features> features;
+    Set<Features> features;
 
     @CommandLine.Option(names = { "-r", "--runtime" }, description = "Target Runtime", defaultValue = "Quarkus")
     Runtime runtime;
+
+    @CommandLine.Option(names = { "-e", "--examples" }, description = "Include Code Examples?", defaultValue = "false")
+    boolean includeExamples;
 
     @Spec
     CommandSpec spec;
@@ -134,8 +142,13 @@ class AddToProjectCommand implements Callable<Integer> {
                     "Path parameter invalid. Path is not a valid project directory nor a pom.xml file.");
         }
 
+        System.out.println(Ansi.AUTO.string("@|bold,yellow Make sure this is a Quarkus 2 based project.|@"));
+
         AddToQuarkusProject addToQuarkusProject = new AddToQuarkusProject();
-        addToQuarkusProject.run(path, componentType, features);
+        addToQuarkusProject.run(path, componentType, features,includeExamples ? CodeExamples.INCLUDE_EXAMPLES : CodeExamples.NO_EXAMPLES);
+
+        System.out.println(Ansi.AUTO.string("@|bold,green POM File changed successuflly.|@"));
+
         return 0;
     }
 }

@@ -24,7 +24,11 @@ import java.util.List;
 import org.apache.maven.model.Dependency;
 
 public enum Features {
-    BPMN(of(new Dependency() {{ setGroupId("org.kie.kogito"); setArtifactId("kogito-quarkus");}}),
+    BPMN(of(new Dependency() {{ setGroupId("org.kie.kogito"); setArtifactId("kogito-quarkus");}},
+            new Dependency() {{ setGroupId("org.kie.kogito"); setArtifactId("kogito-addons-quarkus-process-svg");}},
+            new Dependency() {{ setGroupId("org.kie.kogito"); setArtifactId("runtime-tools-quarkus-extension"); setScope("provided");}},
+            new Dependency() {{ setGroupId("org.kie.kogito"); setArtifactId("kogito-addons-quarkus-data-index-inmemory"); setScope("provided");}},
+            new Dependency() {{ setGroupId("org.kie.kogito"); setArtifactId("kogito-addons-quarkus-jobs-service-embedded"); setScope("provided");}}),
             new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-resteasy"); }},
             new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-resteasy-jackson"); }},
             new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-arc"); }},
@@ -40,13 +44,13 @@ public enum Features {
            new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-resteasy"); }},
            new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-resteasy-jackson"); }},
            new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-arc"); }},
-           new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-smallrye-openapi"); }}), 
-    CLASSIC_DRL(of(new Dependency() {{ setGroupId("org.kie.kogito"); setArtifactId("kogito-quarkus-rules");}},
-                   new Dependency() {{ setGroupId("org.kie.kogito"); setArtifactId("kogito-drools");}}),
-                   new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-resteasy"); }},
-                   new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-resteasy-jackson"); }},
-                   new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-arc"); }},
-                   new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-smallrye-openapi"); }});
+           new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-smallrye-openapi"); }})
+    // CLASSIC_DRL(of(new Dependency() {{ setGroupId("org.kie.kogito"); setArtifactId("kogito-quarkus-rules");}},
+    //                new Dependency() {{ setGroupId("org.kie.kogito"); setArtifactId("kogito-drools");}}),
+    //                new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-resteasy"); }},
+    //                new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-resteasy-jackson"); }},
+    //                new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-arc"); }},
+    //                new Dependency() {{ setGroupId("io.quarkus"); setArtifactId("quarkus-smallrye-openapi"); }});
 
     private final List<Dependency> dependencies = new ArrayList<>();
     private final List<Dependency> quarkusDependencies = new ArrayList<>();
