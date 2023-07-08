@@ -35,7 +35,7 @@ import picocli.CommandLine.Help.Ansi;
 
 public class CreateQuarkusProject {
 
-    public Path run(File file, String groupId, String artifactId, String version, Set<Features> features) {
+    public Path run(File file, String groupId, String artifactId, String version, Set<Feature> features) {
         if (!Files.exists(file.toPath())) {
             System.out.println(Ansi.AUTO.string("@|bold,red Path doesn't exists.|@"));
             return null;

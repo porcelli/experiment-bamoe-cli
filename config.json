@@ -1,0 +1,115 @@
+{
+    "runtimes": {
+        "QUARKUS": {
+            "dependencies": [
+                {
+                    "groupId": "io.quarkus",
+                    "artifactId": "quarkus-smallrye-health"
+                }
+            ],
+            "examples": [
+                "/quarkus/pom.xml"
+            ]
+        }
+    },
+    "features": {
+        "BPMN,DMN,DRL": {
+            "examples": [
+                "/bpmn/dmn/drl/src/main/java/org/kie/kogito/traffic/licensevalidation/Driver.java",
+                "/bpmn/dmn/drl/src/main/java/org/kie/kogito/traffic/licensevalidated/LicenseValidatedService.java",
+                "/bpmn/dmn/drl/src/main/java/org/kie/kogito/traffic/Fine.java",
+                "/bpmn/dmn/drl/src/main/resources/LicenseValidatedService.drl",
+                "/bpmn/dmn/drl/src/main/java/org/kie/kogito/traffic/licensevalidation/LicenseValidationService.java",
+                "/bpmn/dmn/drl/src/main/resources/TrafficViolation.dmn",
+                "/bpmn/dmn/drl/src/main/java/org/kie/kogito/traffic/Violation.java",
+                "/bpmn/dmn/drl/src/main/resources/traffic-rules-dmn.bpmn",
+                "/bpmn/dmn/drl/src/main/java/org/kie/kogito/traffic/DriverService.java",
+                "/bpmn/dmn/drl/src/main/resources/LicenseValidationService.drl",
+                "/bpmn/dmn/drl/src/main/java/org/kie/kogito/traffic/licensevalidated/Validated.java"
+            ],
+            "runtimes": {
+                "QUARKUS|RHBQ": {
+                    "dependencies": [
+                        {
+                            "groupId": "org.kie.kogito",
+                            "artifactId": "kogito-addons-quarkus-data-index-inmemory",
+                            "scope": "provided"
+                        },
+                        {
+                            "groupId": "org.kie.kogito",
+                            "artifactId": "runtime-tools-quarkus-extension",
+                            "scope": "provided"
+                        },
+                        {
+                            "groupId": "org.kie.kogito",
+                            "artifactId": "kogito-addons-quarkus-jobs-service-embedded",
+                            "scope": "provided"
+                        },
+                        {
+                            "groupId": "org.kie.kogito",
+                            "artifactId": "kogito-quarkus"
+                        },
+                        {
+                            "groupId": "org.kie.kogito",
+                            "artifactId": "kogito-addons-quarkus-process-svg"
+                        }
+                    ],
+                    "examples": [
+                        "/quarkus/bpmn/dmn/drl/src/test/java/org/kie/kogito/traffic/TrafficProcessIT.java",
+                        "/quarkus/bpmn/dmn/drl/src/main/resources/application.properties"
+                    ]
+                }
+            }
+        },
+        "DMN": {
+            "examples": [
+                "/dmn/src/main/resources/Traffic Violation.dmn",
+                "/dmn/src/test/resources/TrafficViolationTest.scesim",
+                "/dmn/src/test/java/testscenario/KogitoScenarioJunitActivatorTest.java"
+            ],
+            "runtimes": {
+                "QUARKUS|RHBQ": {
+                    "dependencies": [
+                        {
+                            "groupId": "org.kie.kogito",
+                            "artifactId": "kogito-scenario-simulation",
+                            "scope": "test"
+                        },
+                        {
+                            "groupId": "org.kie.kogito",
+                            "artifactId": "kogito-quarkus-decisions"
+                        }
+                    ],
+                    "examples": [
+                        "/quarkus/dmn/src/test/resources/application.properties",
+                        "/quarkus/dmn/src/main/resources/application.properties",
+                        "/quarkus/dmn/src/test/java/org/kie/kogito/dmn/quarkus/example/TrafficViolationTest.java"
+                    ]
+                }
+            }
+        },
+        "DRL": {
+            "examples": [
+                "/drl/src/main/resources/org/kie/kogito/queries/RuleUnitQuery.drl",
+                "/drl/src/main/java/org/kie/kogito/queries/AllAmounts.java",
+                "/drl/src/main/java/org/kie/kogito/queries/LoanUnit.java",
+                "/drl/src/main/java/org/kie/kogito/queries/LoanApplication.java",
+                "/drl/src/main/java/org/kie/kogito/queries/Applicant.java"
+            ],
+            "runtimes": {
+                "QUARKUS|RHBQ": {
+                    "dependencies": [
+                        {
+                            "groupId": "org.kie.kogito",
+                            "artifactId": "kogito-quarkus-rules"
+                        }
+                    ],
+                    "examples": [
+                        "/quarkus/drl/src/test/resources/application.properties",
+                        "/quarkus/drl/src/test/java/org/kie/kogito/decisiontable/quarkus/ruleunit/RestQueryTest.java"
+                    ]
+                }
+            }
+        }
+    }
+}

@@ -31,12 +31,8 @@ import picocli.CommandLine.Model.CommandSpec;
 
 @TopCommand
 @CommandLine.Command(mixinStandardHelpOptions = true, subcommands = { CreateProjectCommand.class,
-        AddToProjectCommand.class }, versionProvider = VersionProvider.class)
+        AddToProjectCommand.class, SerializeConfif.class }, versionProvider = VersionProvider.class)
 public class ProjectCommand {
-}
-
-enum Runtime {
-    Quarkus// , SpringBoot, RHBQ
 }
 
 @CommandLine.Command(name = "create-project", aliases = { "--create" })
@@ -61,7 +57,7 @@ class CreateProjectCommand implements Callable<Integer> {
 
     @CommandLine.Option(names = { "-f",
             "--features" }, description = "Features (BPMN, DMN, DRL) for the project", split = ",", defaultValue = "DRL")
-    Set<Features> features;
+    Set<Feature> features;
 
     @CommandLine.Option(names = { "-r", "--runtime" }, description = "Target Runtime", defaultValue = "Quarkus")
     Runtime runtime;
@@ -75,7 +71,7 @@ class CreateProjectCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
 
-        if (!runtime.equals(Runtime.Quarkus)) {
+        if (!runtime.equals(Runtime.QUARKUS)) {
             throw new ParameterException(spec.commandLine(), "Quarkus is the only supported runtime.");
         }
 
@@ -96,6 +92,20 @@ class CreateProjectCommand implements Callable<Integer> {
     }
 }
 
+
+@CommandLine.Command(name = "config")
+class SerializeConfif implements Callable<Integer> {
+
+    @Override
+    public Integer call() throws Exception {
+        // final ObjectMapper objectMapper = new ObjectMapper();
+        // objectMapper.writeValue(new File("config.json"), new Config());
+
+        return 0;
+    }
+}
+
+
 @CommandLine.Command(name = "add-to-project", aliases = { "--add" })
 class AddToProjectCommand implements Callable<Integer> {
 
@@ -109,7 +119,7 @@ class AddToProjectCommand implements Callable<Integer> {
 
     @CommandLine.Option(names = { "-f",
             "--features" }, description = "Features (BPMN, DMN, DRL) for the project", split = ",", defaultValue = "DRL")
-    Set<Features> features;
+    Set<Feature> features;
 
     @CommandLine.Option(names = { "-r", "--runtime" }, description = "Target Runtime", defaultValue = "Quarkus")
     Runtime runtime;
@@ -123,7 +133,7 @@ class AddToProjectCommand implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
 
-        if (!runtime.equals(Runtime.Quarkus)) {
+        if (!runtime.equals(Runtime.QUARKUS)) {
             throw new ParameterException(spec.commandLine(), "Quarkus is the only supported runtime.");
         }
 

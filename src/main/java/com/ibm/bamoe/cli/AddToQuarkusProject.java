@@ -15,28 +15,19 @@
  */
 package com.ibm.bamoe.cli;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.stream.Stream;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.DependencyManagement;
@@ -66,7 +57,7 @@ public class AddToQuarkusProject {
         }
     };
 
-    public void run(File inputPath, ComponentType componentType, Set<Features> features, CodeExamples codeExamples) {
+    public void run(File inputPath, ComponentType componentType, Set<Feature> features, CodeExamples codeExamples) {
         File pomFile;
 
         if (!Files.exists(inputPath.toPath())) {
@@ -108,9 +99,8 @@ public class AddToQuarkusProject {
 
             final Set<Dependency> hashSet = new HashSet<>();
             hashSet.add(componentType.getDepedency());
-            for (Features feature : features) {
+            for (Feature feature : features) {
                 hashSet.addAll(feature.getDepedencies());
-                hashSet.addAll(feature.getQuarkusDepedencies());
             }
 
             for (Dependency dependency : hashSet) {
@@ -123,14 +113,21 @@ public class AddToQuarkusProject {
             MavenXpp3Writer writer = new MavenXpp3Writer();
             writer.write(new FileWriter(pomFile), model);
 
+            if (codeExamples.equals(CodeExamples.INCLUDE_EXAMPLES)) {
+                writeFiles(pomFile.getParent(), FilesToWriteQuarkus.COMMON.getFiles());
+            }
+
             if (codeExamples.equals(CodeExamples.INCLUDE_EXAMPLES) && features.size() == 3) {
-                writeFiles(pomFile.getParent(), FilesToWriteQuarkus.ALL.getFiles());
+                writeFiles(pomFile.getParent(), FilesToWriteQuarkus.BPMN_DMN_DRL_COMMON.getFiles());
+                writeFiles(pomFile.getParent(), FilesToWriteQuarkus.BPMN_DMN_DRL_COMMON.getFiles());
             } else {
-                if (codeExamples.equals(CodeExamples.INCLUDE_EXAMPLES) && features.contains(Features.DRL)) {
-                    writeFiles(pomFile.getParent(), FilesToWriteQuarkus.DRL.getFiles());
+                if (codeExamples.equals(CodeExamples.INCLUDE_EXAMPLES) && features.contains(Feature.DRL)) {
+                    writeFiles(pomFile.getParent(), FilesToWriteQuarkus.DRL_COMMON.getFiles());
+                    writeFiles(pomFile.getParent(), FilesToWriteQuarkus.DRL_QUARKUS.getFiles());
                 }
-                if (codeExamples.equals(CodeExamples.INCLUDE_EXAMPLES) && features.contains(Features.DMN)) {
-                    writeFiles(pomFile.getParent(), FilesToWriteQuarkus.DMN.getFiles());
+                if (codeExamples.equals(CodeExamples.INCLUDE_EXAMPLES) && features.contains(Feature.DMN)) {
+                    writeFiles(pomFile.getParent(), FilesToWriteQuarkus.DMN_COMMON.getFiles());
+                    writeFiles(pomFile.getParent(), FilesToWriteQuarkus.DMN_QUARKUS.getFiles());
                 }
             }
         } catch (Exception ex) {
